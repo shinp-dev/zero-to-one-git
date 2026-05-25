@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第6章：実践ハンズオン | Gitチーム開発実践ガイド</title>
+    
+    <!-- Outfit & Inter Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Mermaid.js for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            securityLevel: 'loose',
+            themeVariables: {
+                background: '#1e293b',
+                primaryColor: '#6366f1',
+                primaryTextColor: '#f8fafc',
+                lineColor: '#818cf8'
+            }
+        });
+    </script>
+    
+    <style>
+        :root {
+            --bg-main: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.15);
+            --secondary: #8b5cf6;
+            --accent: #10b981;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.7;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 40%);
+            background-attachment: fixed;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Header styling */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #818cf8, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.2s ease;
+        }
+        
+        .nav-links a:hover {
+            color: var(--text-main);
+        }
+        
+        /* Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2.5rem;
+        }
+        
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            aside {
+                display: none;
+            }
+        }
+        
+        /* Sidebar styling */
+        aside {
+            position: sticky;
+            top: 6rem;
+            height: calc(100vh - 8rem);
+            overflow-y: auto;
+            padding-right: 1rem;
+        }
+        
+        .sidebar-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .sidebar-menu a {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+        
+        .sidebar-menu a:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.03);
+        }
+        
+        .sidebar-menu li.active a {
+            color: #ffffff;
+            background: var(--primary-glow);
+            border-color: rgba(99, 102, 241, 0.2);
+            font-weight: 600;
+        }
+        
+        /* Content area styling */
+        main {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 2.5rem;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            min-height: 60vh;
+        }
+        
+        /* Typography */
+        h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #ffffff 60%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.25;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+        
+        h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+        }
+        
+        h2::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 1.25rem;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            margin-right: 0.75rem;
+            border-radius: 2px;
+        }
+        
+        h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-top: 1.75rem;
+            margin-bottom: 0.75rem;
+            color: #e2e8f0;
+        }
+        
+        p {
+            margin-bottom: 1.25rem;
+            color: #cbd5e1;
+        }
+        
+        hr {
+            border: 0;
+            height: 1px;
+            background: var(--border-color);
+            margin: 2rem 0;
+        }
+        
+        /* Lists */
+        ul, ol {
+            margin-bottom: 1.25rem;
+            padding-left: 1.5rem;
+            color: #cbd5e1;
+        }
+        
+        li {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Code blocks */
+        pre {
+            background-color: #0b0f19;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1.25rem;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        
+        code {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.875rem;
+            color: #e2e8f0;
+        }
+        
+        :not(pre) > code {
+            background-color: rgba(99, 102, 241, 0.1);
+            color: #a5b4fc;
+            padding: 0.15rem 0.4rem;
+            border-radius: 0.25rem;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            font-size: 0.85rem;
+        }
+        
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+        
+        th, td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+        }
+        
+        th {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+        
+        tr:hover td {
+            background-color: rgba(255, 255, 255, 0.01);
+        }
+        
+        /* Links */
+        a {
+            color: #818cf8;
+            text-decoration: none;
+            transition: color 0.15s ease;
+        }
+        
+        a:hover {
+            color: #a5b4fc;
+            text-decoration: underline;
+        }
+        
+        /* Alerts styling */
+        .alert {
+            padding: 1.25rem;
+            border-left: 4px solid #6366f1;
+            border-radius: 0.375rem;
+            margin-bottom: 1.5rem;
+            background: rgba(99, 102, 241, 0.03);
+        }
+        
+        .alert-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Alert variants */
+        .alert-note {
+            border-left-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.04);
+            color: #93c5fd;
+        }
+        .alert-note .alert-title { color: #3b82f6; }
+        
+        .alert-tip {
+            border-left-color: #10b981;
+            background: rgba(16, 185, 129, 0.04);
+            color: #6ee7b7;
+        }
+        .alert-tip .alert-title { color: #10b981; }
+        
+        .alert-important {
+            border-left-color: #8b5cf6;
+            background: rgba(139, 92, 246, 0.04);
+            color: #c4b5fd;
+        }
+        .alert-important .alert-title { color: #8b5cf6; }
+        
+        .alert-warning {
+            border-left-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.04);
+            color: #fde047;
+        }
+        .alert-warning .alert-title { color: #f59e0b; }
+        
+        .alert-caution {
+            border-left-color: #f43f5e;
+            background: rgba(244, 63, 94, 0.04);
+            color: #fca5a5;
+        }
+        .alert-caution .alert-title { color: #f43f5e; }
+
+        /* Mermaid Wrapper */
+        .mermaid {
+            background: #1e293b;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: center;
+        }
+        
+        /* Bottom Pagination */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+            gap: 1rem;
+        }
+        
+        .pagination-link {
+            flex: 1;
+            padding: 1.25rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.01);
+            text-decoration: none;
+            color: var(--text-main);
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .pagination-link:hover {
+            background: rgba(99, 102, 241, 0.03);
+            border-color: rgba(99, 102, 241, 0.3);
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+        
+        .pagination-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+        
+        .pagination-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .pagination-prev {
+            align-items: flex-start;
+        }
+        
+        .pagination-next {
+            align-items: flex-end;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="git_team_development_guide.html" class="header-title">Gitチーム開発実践ガイド</a>
+        <div class="nav-links">
+            <a href="git_team_development_guide.html">目次</a>
+            <a href="https://github.com" target="_blank">GitHub</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <aside>
+            <div class="sidebar-title">章一覧</div>
+            <ul class="sidebar-menu">
+                <li><a href="git_team_development_guide.html">総合目次</a></li>
+<li><a href="01_why_git_and_github.html">第1章：なぜGit/GitHubが必要なのか？</a></li>
+<li><a href="02_git_basic_concepts.html">第2章：基本概念・コマンド・.gitignore</a></li>
+<li><a href="03_branch_naming_rules.html">第3章：ブランチの命名規則</a></li>
+<li><a href="04_team_development_flow.html">第4章：チーム開発のワークフロー</a></li>
+<li><a href="05_troubleshooting_and_recovery.html">第5章：トラブルシューティング</a></li>
+<li class="active"><a href="06_hands_on_practice.html">第6章：実践ハンズオン</a></li>
+            </ul>
+        </aside>
+        
+        <div>
+            <main>
+                <h1>第6章：手を動かして学ぶ実践ハンズオン</h1>
+<p>これまで学んだ一連の流れを、手元のPCで実際に動かして体験してみましょう。
+練習用の自己紹介テンプレートを利用して、<strong>「作業用ブランチの作成から、ファイルを編集し、mainブランチに合流させて後片付けするまで」</strong>のワークフローを疑似体験します。</p>
+<hr />
+<h2>6.1 【準備】Gitの初期設定と環境確認</h2>
+<p>コマンドを動かす前に、PCの初期設定と設定状況を確認します。</p>
+<h3>1. ターミナル（Git Bash推奨）の起動とフォルダ移動</h3>
+<p>Gitのコマンドを実行するため、ターミナル（Windowsは Git Bash または PowerShell）を起動し、このプロジェクトのリポジトリ（フォルダ）に移動します。</p>
+<pre><code class="language-bash"># このリポジトリの場所に移動する
+cd d:/zerotoone-git
+</code></pre>
+<h3>2. ユーザー設定の確認と設定</h3>
+<p>Gitで履歴を記録する際、「誰がコミットしたか」を識別するための名前とメールアドレスを設定します。</p>
+<pre><code class="language-bash"># 現在の設定状況を確認する
+git config user.name
+git config user.email
+</code></pre>
+<ul>
+<li><strong>もし何も表示されない（未設定）場合</strong>は、以下のコマンドで設定します。
+  <code>bash
+  git config --global user.name "あなたの名前（アルファベット推奨）"
+  git config --global user.email "your-email@example.com"</code></li>
+</ul>
+<h3>3. Windows環境の改行コード設定（Windowsユーザーは必須）</h3>
+<p>WindowsとMac/Linuxの間で改行コードの違いによる不要な差分が出るのを防ぐため、以下の自動変換設定を有効にします。</p>
+<pre><code class="language-bash">git config --global core.autocrlf true
+</code></pre>
+<hr />
+<h2>6.2 【実践】ハンズオンスタート</h2>
+<p>今回は、GitHubを使わずにローカルPC内だけで一人二役（開発者 ＆ マージャー）を行い、一連のGit操作の流れを体験します。</p>
+<h3>Step 1: タスク（やること）の確認</h3>
+<ul>
+<li><strong>課題（イシュー）</strong>: <code>練習リポジトリに自分の自己紹介シートを追加する</code></li>
+<li><strong>作業するフォルダ</strong>: <code>d:/zerotoone-git</code></li>
+<li><strong>作成する作業ブランチ名</strong>: <code>feature/issue-1-introduce-myself</code></li>
+</ul>
+<hr />
+<h3>Step 2: 最新の main ブランチから新しいブランチを作る</h3>
+<p>安全な作業スペースを確保するため、本番用ブランチから自分専用のブランチ（部屋）を分岐させます。</p>
+<pre><code class="language-bash"># 1. 本番用の main ブランチにいることを確認する
+git switch main
+
+# 2. 最新のリモート状態を取り込む（今回はローカル練習のためそのまま進みます）
+# git pull origin main
+
+# 3. 新しい作業用ブランチを作成して、同時に切り替える
+git switch -c feature/issue-1-introduce-myself
+</code></pre>
+<p>切り替えに成功すると、ターミナルに <code>Switched to a new branch 'feature/issue-1-introduce-myself'</code> と表示されます。</p>
+<hr />
+<h3>Step 3: ファイルを作成・編集する</h3>
+<p>エディタ（VS Codeなど）を使い、新しいファイルを作成します。</p>
+<ol>
+<li>このプロジェクトにある <a href="../profile_template.html">profile_template.md</a> を開きます。</li>
+<li>ファイルの内容をすべてコピーします。</li>
+<li>同じフォルダ（<code>d:/zerotoone-git</code>）の直下に、新しく <code>profile_yourname.md</code> （例: <code>profile_taro.md</code> など、ご自身の名前）というファイルを新規作成し、コピーした内容を貼り付けます。</li>
+<li>ファイル内の <code>[ここに名前を書いてください]</code> などのプレースホルダーをご自身の情報に書き換えて保存します。</li>
+</ol>
+<hr />
+<h3>Step 4: 変更をステージングエリアに追加し、コミットする</h3>
+<p>作成したファイルをセーブポイント（コミット）に記録します。</p>
+<pre><code class="language-bash"># 1. 現在の状態を確認する
+git status
+# 新しく作ったファイル（例: profile_taro.md）が「Untracked files」として赤文字で表示されます。
+
+# 2. 作成したファイルをステージングエリア（コミット待ち台車）に載せる
+git add profile_taro.md
+
+# 3. 再度状態を確認する
+git status
+# ファイル名が緑文字（Changes to be committed）に変わり、コミット準備完了になります。
+
+# 4. コミットを実行する
+git commit -m &quot;feat: taroの自己紹介シートを追加&quot;
+</code></pre>
+<p>これで、あなたのローカルPCのデータベースに変更履歴がセーブされました。</p>
+<hr />
+<h3>Step 5: ローカルでのマージ（合流）体験</h3>
+<p>通常であればここで <code>git push origin &lt;ブランチ名&gt;</code> でGitHubにアップしてプルリクエストを作成しますが、今回はローカル環境だけでマージの動きをシミュレートします。</p>
+<pre><code class="language-bash"># 1. 本番用の main ブランチに戻る
+git switch main
+
+# 2. あなたが作った作業ブランチの変更を main に合流させる（マージ）
+git merge feature/issue-1-introduce-myself
+</code></pre>
+<p>マージを実行すると、ターミナルに <code>Fast-forward</code> や更新情報が表示されます。
+エディタのファイル一覧を見てみましょう。<code>main</code> ブランチにいる状態でも、先ほど作成した <code>profile_yourname.md</code> がしっかりとフォルダ内に存在しているはずです！</p>
+<hr />
+<h3>Step 6: 後片付け（ブランチの削除）</h3>
+<p>無事にマージ（統合）が完了したら、役割を終えたブランチは削除して整理整頓します。</p>
+<pre><code class="language-bash"># 不要になった作業ブランチをローカルから削除する
+git branch -d feature/issue-1-introduce-myself
+</code></pre>
+<ul>
+<li>※間違えてマージしていないブランチを削除しようとするとGitがエラー警告を出してくれます。 <code>-d</code> オプションは安全に削除するためのものです。</li>
+</ul>
+<p>これで、ブランチの作成からマージ、後片付けまでの基本的なGitワークフローの体験は完了です！</p>
+<hr />
+<ul>
+<li><a href="05_troubleshooting_and_recovery.html">前へ（第5章：トラブルシューティングとリカバリー方法）</a></li>
+<li><a href="git_team_development_guide.html">総合目次に戻る</a></li>
+</ul>
+            </main>
+            
+            <div class="pagination">
+                <a href="05_troubleshooting_and_recovery.html" class="pagination-link pagination-prev">
+            <span class="pagination-label">← 前の章</span>
+            <span class="pagination-title">第5章：トラブルシューティング</span>
+        </a>
+                
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
