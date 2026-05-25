@@ -10,7 +10,7 @@ Gitでは、ファイルを書き換えてから保存・共有するまでに�
 
 ```mermaid
 graph LR
-    subgraph Local[あなたのPC内 (ローカル)]
+    subgraph Local ["あなたのPC内 (ローカル)"]
         A["1. ワークツリー<br>(実際の作業フォルダ)"] -- "git add" --> B["2. ステージングエリア<br>(一時的なコミット待ち台車)"]
         B -- "git commit" --> C["3. ローカルリポジトリ<br>(PC内の履歴データベース)"]
     end
