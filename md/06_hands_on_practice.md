@@ -1,135 +1,141 @@
-# 第6章：手を動かして学ぶ実践ハンズオン
+# 第6章：IssueからPRまでのハンズオン
 
-これまで学んだ一連の流れを、手元のPCで実際に動かして体験してみましょう。
-練習用の自己紹介テンプレートを利用して、**「作業用ブランチの作成から、ファイルを編集し、mainブランチに合流させて後片付けするまで」**のワークフローを疑似体験します。
+## ゴール
 
----
+`profiles/<名前>.md`を追加し、**Issue → ブランチ → コミット → PR → レビュー → マージ**を完了する。
 
-## 6.1 【準備】Gitの初期設定と環境確認
+## 完成までの地図
 
-コマンドを動かす前に、PCの初期設定と設定状況を確認します。
-
-### 1. ターミナル（Git Bash推奨）の起動とフォルダ移動
-Gitのコマンドを実行するため、ターミナル（Windowsは Git Bash または PowerShell）を起動し、このプロジェクトのリポジトリ（フォルダ）に移動します。
-
-```bash
-# このリポジトリの場所に移動する
-cd d:/zerotoone-git
+```text
+[GitHub] Issueを作る／選ぶ
+      ↓
+[PC] mainを最新化 → ブランチ作成
+      ↓
+[PC] profiles/<名前>.mdを作成 → commit → push
+      ↓
+[GitHub] PR作成 → レビュー対応 → マージ
+      ↓
+[PC] mainを更新 → ブランチ削除
 ```
 
-### 2. ユーザー設定の確認と設定
-Gitで履歴を記録する際、「誰がコミットしたか」を識別するための名前とメールアドレスを設定します。
+## 準備チェック
+
+- [ ] GitHubへログインできる
+- [ ] このリポジトリをclone済みである
+- [ ] ターミナルでリポジトリを開いている
+- [ ] `git config user.name`と`git config user.email`に値が出る
+
+> [!NOTE]
+> 改行コードの設定はプロジェクトごとに異なります。チーム指定の`.gitattributes`やセットアップ手順を優先してください。
+
+## Step 1：Issueを作る／担当する
+
+GitHubの`Issues`からプロフィール追加用Issueを作成します。用意済みなら自分をAssigneeに設定します。
+
+| 項目 | 内容 |
+|---|---|
+| タイトル | `プロフィールを追加する：<名前>` |
+| 成果物 | `profiles/<名前>.md` |
+| 完了条件 | 全項目を記入し、PRでレビュー済み |
+
+Issue番号を控えます。以降の例では`#12`を使います。
+
+## Step 2：ブランチを作る
 
 ```bash
-# 現在の設定状況を確認する
-git config user.name
-git config user.email
-```
-* **もし何も表示されない（未設定）場合**は、以下のコマンドで設定します。
-  ```bash
-  git config --global user.name "あなたの名前（アルファベット推奨）"
-  git config --global user.email "your-email@example.com"
-  ```
-
-### 3. Windows環境の改行コード設定（Windowsユーザーは必須）
-WindowsとMac/Linuxの間で改行コードの違いによる不要な差分が出るのを防ぐため、以下の自動変換設定を有効にします。
-
-```bash
-git config --global core.autocrlf true
-```
-
----
-
-## 6.2 【実践】ハンズオンスタート
-
-今回は、GitHubを使わずにローカルPC内だけで一人二役（開発者 ＆ マージャー）を行い、一連のGit操作の流れを体験します。
-
-### Step 1: タスク（やること）の確認
-* **課題（イシュー）**: `練習リポジトリに自分の自己紹介シートを追加する`
-* **作業するフォルダ**: `d:/zerotoone-git`
-* **作成する作業ブランチ名**: `feature/issue-1-introduce-myself`
-
----
-
-### Step 2: 最新の main ブランチから新しいブランチを作る
-安全な作業スペースを確保するため、本番用ブランチから自分専用のブランチ（部屋）を分岐させます。
-
-```bash
-# 1. 本番用の main ブランチにいることを確認する
 git switch main
-
-# 2. 最新のリモート状態を取り込む（今回はローカル練習のためそのまま進みます）
-# git pull origin main
-
-# 3. 新しい作業用ブランチを作成して、同時に切り替える
-git switch -c feature/issue-1-introduce-myself
+git pull origin main
+git switch -c feature/issue-12-add-profile
 ```
 
-切り替えに成功すると、ターミナルに `Switched to a new branch 'feature/issue-1-introduce-myself'` と表示されます。
+✅ `git status`の先頭に作業ブランチ名が表示されれば完了です。
 
----
+## Step 3：プロフィールを作る
 
-### Step 3: ファイルを作成・編集する
-エディタ（VS Codeなど）を使い、新しいファイルを作成します。
+1. [`profile_template.md`](../profile_template.md)をコピーする
+2. `profiles/<名前>.md`として保存する
+3. 角括弧のプレースホルダーをすべて書き換える
 
-1. このプロジェクトにある [profile_template.md](../profile_template.md) を開きます。
-2. ファイルの内容をすべてコピーします。
-3. 同じフォルダ（`d:/zerotoone-git`）の直下に、新しく `profile_yourname.md` （例: `profile_taro.md` など、ご自身の名前）というファイルを新規作成し、コピーした内容を貼り付けます。
-4. ファイル内の `[ここに名前を書いてください]` などのプレースホルダーをご自身の情報に書き換えて保存します。
+例：`profiles/taro.md`
 
----
-
-### Step 4: 変更をステージングエリアに追加し、コミットする
-作成したファイルをセーブポイント（コミット）に記録します。
+## Step 4：確認してコミットする
 
 ```bash
-# 1. 現在の状態を確認する
 git status
-# 新しく作ったファイル（例: profile_taro.md）が「Untracked files」として赤文字で表示されます。
-
-# 2. 作成したファイルをステージングエリア（コミット待ち台車）に載せる
-git add profile_taro.md
-
-# 3. 再度状態を確認する
-git status
-# ファイル名が緑文字（Changes to be committed）に変わり、コミット準備完了になります。
-
-# 4. コミットを実行する
-git commit -m "feat: taroの自己紹介シートを追加"
+git add profiles/taro.md
+git diff --staged
+git commit -m "feat: taroのプロフィールを追加"
 ```
 
-これで、あなたのローカルPCのデータベースに変更履歴がセーブされました。
+✅ `git diff --staged`で、プロフィール以外の変更が含まれていないことを確認します。
 
----
-
-### Step 5: ローカルでのマージ（合流）体験
-通常であればここで `git push origin <ブランチ名>` でGitHubにアップしてプルリクエストを作成しますが、今回はローカル環境だけでマージの動きをシミュレートします。
+## Step 5：GitHubへpushする
 
 ```bash
-# 1. 本番用の main ブランチに戻る
+git push -u origin feature/issue-12-add-profile
+```
+
+✅ GitHubに作業ブランチが表示されれば完了です。
+
+## Step 6：PRを作る
+
+GitHubの`Compare & pull request`を開きます。
+
+```markdown
+## 変更内容
+- taroのプロフィールを追加
+
+## 確認
+- [x] テンプレートの全項目を記入した
+- [x] profiles/に保存した
+
+Closes #12
+```
+
+✅ 変更ファイルが1件で、baseが`main`、compareが作業ブランチになっていることを確認します。
+
+## Step 7：レビューへ対応する
+
+指摘がなければ承認へ進みます。指摘があれば同じブランチで修正します。
+
+```bash
+git add profiles/taro.md
+git commit -m "fix: プロフィールの記載漏れを修正"
+git push
+```
+
+✅ 新しいPRは作りません。現在のPRへコミットが追加されます。
+
+## Step 8：マージして片付ける
+
+PRをマージし、GitHub上の作業ブランチを削除します。その後、PC側を更新します。
+
+```bash
 git switch main
-
-# 2. あなたが作った作業ブランチの変更を main に合流させる（マージ）
-git merge feature/issue-1-introduce-myself
+git pull origin main
+git branch -d feature/issue-12-add-profile
 ```
 
-マージを実行すると、ターミナルに `Fast-forward` や更新情報が表示されます。
-エディタのファイル一覧を見てみましょう。`main` ブランチにいる状態でも、先ほど作成した `profile_yourname.md` がしっかりとフォルダ内に存在しているはずです！
+## 完了チェック
 
----
+- [ ] PRがマージされた
+- [ ] `Closes #12`によりIssueが閉じた
+- [ ] `profiles/<名前>.md`が`main`にある
+- [ ] ローカルの作業ブランチを削除した
 
-### Step 6: 後片付け（ブランチの削除）
-無事にマージ（統合）が完了したら、役割を終えたブランチは削除して整理整頓します。
+## GitHubを使えない場合：ローカル練習版
+
+Step 4の後、次だけを実行するとマージを疑似体験できます。
 
 ```bash
-# 不要になった作業ブランチをローカルから削除する
-git branch -d feature/issue-1-introduce-myself
+git switch main
+git merge feature/issue-12-add-profile
+git branch -d feature/issue-12-add-profile
 ```
-* ※間違えてマージしていないブランチを削除しようとするとGitがエラー警告を出してくれます。 `-d` オプションは安全に削除するためのものです。
 
-これで、ブランチの作成からマージ、後片付けまでの基本的なGitワークフローの体験は完了です！
+この方法ではIssue、PR、レビューは体験できません。可能になったら本編も実施してください。
 
 ---
 
-* [前へ（第5章：トラブルシューティングとリカバリー方法）](05_troubleshooting_and_recovery.md)
-* [総合目次に戻る](git_team_development_guide.md)
+* [前へ：第5章](05_troubleshooting_and_recovery.md)
+* [総合目次](git_team_development_guide.md)

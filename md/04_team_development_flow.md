@@ -1,127 +1,115 @@
 # 第4章：チーム開発のワークフロー
 
-複数人のチームで開発を行う場合、ただ各自がコードを書くだけでなく、一定の決められた「型（フロー）」に従って開発を進めることで、安全で品質の高いコードを維持できます。
+## この章のゴール
 
----
+**Issueを受け取り、PRをマージしてIssueを完了できる。**
 
-## 4.1 チーム開発の4大ステップ
-
-チーム開発は、基本的に以下のサイクルを繰り返します。
+## まず見る：1つのIssueが完了するまで
 
 ```mermaid
-sequenceDiagram
-    actor Developer as 開発者 (あなた)
-    participant GitHub as GitHub (共有リポジトリ)
-    participant Local as ローカルPC
-
-    Developer->>GitHub: 1. イシュー(Issue)を起票
-    Note over Developer, GitHub: 「こんな課題・機能を作ります」と宣言
-    Developer->>Local: 2. ブランチの作成 (git switch -c)
-    Note over Local: 安全に作業するための作業部屋を作る
-    Developer->>Local: 実装・コミット・プッシュ (git push)
-    Developer->>GitHub: 3. プルリクエスト(PR)作成
-    Note over GitHub: レビュアー「コードにバグや問題がないかチェック」
-    GitHub->>GitHub: 4. マージ (Merge)
-    Note over GitHub: 問題なければ main ブランチに合流
+flowchart LR
+    A["1. Issue<br>目的を決める"] --> B["2. Branch<br>作業を分ける"]
+    B --> C["3. Commit<br>変更を記録"]
+    C --> D["4. Push / PR<br>確認を依頼"]
+    D --> E["5. Review<br>修正・承認"]
+    E --> F["6. Merge<br>統合・完了"]
 ```
 
----
+## 手順早見表
 
-## 4.2 具体的な実践手順とコマンド
+| 段階 | やること | 完了の目印 |
+|---|---|---|
+| Issue | 目的・作業・完了条件を書く | 担当者が決まっている |
+| Branch | 最新の`main`から作る | 作業ブランチへ移動済み |
+| Commit | 関係する変更だけ記録する | `git status`が意図どおり |
+| PR | `Closes #番号`を付ける | レビュアーが判断できる |
+| Review | 指摘を同じブランチで直す | 承認・テスト完了 |
+| Merge | PRを統合する | Issueが閉じる |
 
-実際に開発を進めるときの操作手順です。コマンドはすべて `switch` を使用します。
+## 1. Issue：作業の入口を作る
 
-### ステップ 1：【GitHub】イシューの起票と担当者の割り当て
-1. GitHubの「Issues」タブを開き、**[New issue]** をクリック。
-2. タイトルと本文（目的、やること、完了条件）を書く。
-3. 右側のメニューから自分を **[Assignees]**（担当者）に設定する。
+Issueには次の3点を書きます。
 
-### ステップ 2：【PC】最新のmainからブランチを作成する
-手元のPCで作業部屋（ブランチ）を作ります。必ず **最新の `main`** から分岐させます。
+```markdown
+## 目的
+チームメンバーがお互いの役割を確認できるようにする。
+
+## やること
+- profile_template.mdを複製する
+- profiles/<名前>.mdを作成する
+
+## 完了条件
+- [ ] 必須項目が記入されている
+- [ ] profiles/に保存されている
+```
+
+## 2. Branch：最新の`main`から分ける
 
 ```bash
-# 1. 本番用ブランチ (main) に切り替える
 git switch main
-
-# 2. リモート(GitHub)の最新状態を手元に反映する
 git pull origin main
-
-# 3. 新しい作業用ブランチを作成して切り替える
-# （例：イシュー番号 #12 のログイン画面作成の場合）
-git switch -c feature/#12-user-login
+git switch -c feature/issue-12-add-profile
 ```
 
-### ステップ 3：【PC】コードを編集し、細かくコミットする
-ファイルを編集したら、こまめにコミット（セーブ）を残します。
+## 3. Commit：変更を確認して記録する
 
 ```bash
-# 1. 変更されたファイルを確認
 git status
-
-# 2. 変更したファイルをステージングエリアに載せる
-git add src/login.js
-
-# 3. コミットする（メッセージは「何をしたか」がわかるように）
-git commit -m "feat: ユーザーログインのUI画面を追加"
+git add profiles/taro.md
+git commit -m "feat: taroのプロフィールを追加"
 ```
 
 > [!TIP]
-> **コミットメッセージのプレフィックス**
-> メッセージの先頭に `feat:` (新機能)、`fix:` (バグ修正)、`docs:` (ドキュメント) などをつけると、後から履歴が見やすくなります。
+> `feat:`は機能、`fix:`は不具合、`docs:`は文書の変更を表します。チームの規則があればそちらを使います。
 
-### ステップ 4：【PC】GitHubへプッシュする
-ある程度作業が進んだら、ローカルのブランチをリモート（GitHub）に送信します。
+## 4. Push / PR：レビューを依頼する
 
 ```bash
-# 自分の作業ブランチをGitHubに送信
-git push origin feature/#12-user-login
+git push -u origin feature/issue-12-add-profile
 ```
 
-### ステップ 5：【GitHub】プルリクエスト（PR）の作成とレビュー
-1. GitHubに行くと、`Compare & pull request` ボタンが表示されるのでクリック。
-2. タイトルと説明文を入力。
-   * **Tips**: 説明文に `Closes #12`（#12はイシュー番号）と書くと、**このPRがマージされた瞬間にイシューが自動的にクローズ（完了）**されます。
-3. 右メニューの **[Reviewers]** にレビューを頼みたいメンバーを指定する。
-4. **[Create pull request]** をクリック。
+PR本文には、最低限次を含めます。
+
+- 何を変更したか
+- どう確認したか
+- `Closes #12`（マージ時にIssueを閉じる）
+
+## 5. Review：同じPRへ修正を追加する
+
+```text
+レビュー指摘 → ファイル修正 → add → commit → push
+                                      ↓
+                              開いているPRへ自動反映
+```
+
+```bash
+git add profiles/taro.md
+git commit -m "fix: プロフィールの記載漏れを修正"
+git push
+```
 
 > [!IMPORTANT]
-> **超重要：レビューで「修正指示」が出たときの対応方法**
-> 指摘を受けてコードを修正する際、**「新しくPRを作り直したり、PRを閉じたり」する必要は一切ありません！**
-> 1. ローカルPCでそのままファイルを修正します。
-> 2. `git add` および `git commit` を行います。
-> 3. 同じブランチ名で再度 `git push origin <ブランチ名>` を実行します。
-> 
-> これだけで、**すでに開いているGitHub上のPRに自動的に新しいコミット（修正）が追加・反映されます。**
+> 指摘を受けても、PRやブランチを作り直しません。同じブランチへpushします。
 
-### ステップ 6：【GitHub】マージと後片付け
-レビュアーから **[Approve]**（承認）が得られたら、PRのページにある **[Merge pull request]**（または Squash and merge）をクリックしてマージします。
-マージが完了したら、不要になったリモートブランチは **[Delete branch]** ボタンをクリックして削除します。
+## 6. Merge：統合して片付ける
 
-### ステップ 7：【PC】ローカル環境の片付けとリセット
-マージが完了したら、自分のPC（ローカル）も最新の状態に戻して、次の開発に備えます。
+GitHubで承認とテスト結果を確認し、チームの規則に合う方法でマージします。その後、ローカルを更新します。
 
 ```bash
-# 1. 本番用ブランチ (main) に戻る
 git switch main
-
-# 2. GitHubでマージされた最新の main を手元に取り込む
 git pull origin main
-
-# 3. 役割を終えたローカルの作業ブランチを削除する（部屋の片付け）
-git branch -d feature/#12-user-login
+git branch -d feature/issue-12-add-profile
 ```
 
----
+## 完了チェック
 
-## 4.3 チームでのコミュニケーション
-
-チーム開発を円滑にするためのマナーです。
-
-* **レビュー依頼の明示**: PRを作成したら、SlackやTeamsなどで「#12 ログイン機能のPRを作成しました。レビューお願いします！」とリンクを添えて共有すると親切です。
-* **LGTM（Looks Good To Me）**: レビューして問題がなければ、コメントに「LGTMです！👍」と書いてApproveすると、マージしてよいという合図になります。
+- [ ] Issueの完了条件をすべて満たした
+- [ ] PRに変更内容と確認方法を書いた
+- [ ] レビュー指摘を同じPRへ反映した
+- [ ] マージ後にIssueが閉じた
 
 ---
 
-* [前へ（第3章：ブランチの命名規則）](03_branch_naming_rules.md)
-* [総合目次に戻る](git_team_development_guide.md)
-* [次の章（第5章：トラブルシューティングとリカバリー方法）へ進む](05_troubleshooting_and_recovery.md)
+* [前へ：第3章](03_branch_naming_rules.md)
+* [総合目次](git_team_development_guide.md)
+* [次へ：第5章](05_troubleshooting_and_recovery.md)
