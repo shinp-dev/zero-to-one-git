@@ -1,80 +1,128 @@
-# 第2章：Gitの基本概念・コマンド・`.gitignore`
+# 第2章：Gitの地図 — Worktree / Staging / Commit / Branch / HEAD
 
 ## この章のゴール
 
-**変更を選び、記録し、GitHubへ共有できる。**
+**Gitの操作で「何がどこへ動くか」を図で説明できる。**
 
-## まず見る：変更が進む経路
-
-```mermaid
-flowchart LR
-    A["編集<br>ワークツリー"] -->|git add| B["選択<br>ステージング"]
-    B -->|git commit| C["記録<br>ローカル履歴"]
-    C -->|git push| D["共有<br>GitHub"]
-```
-
-| 場所 | 何があるか | 次の操作 |
-|---|---|---|
-| ワークツリー | 編集中のファイル | `git add` |
-| ステージング | 次のコミットに含める変更 | `git commit` |
-| ローカルリポジトリ | PC内のコミット履歴 | `git push` |
-| リモートリポジトリ | GitHub上の共有履歴 | PRを作成 |
-
-## 作業中に使うコマンド
-
-| やること | コマンド | 成功の目印 |
-|---|---|---|
-| 初回だけ取得する | `git clone <URL>` | リポジトリのフォルダができる |
-| 現在地を確認する | `git status` | ブランチ名と変更一覧が出る |
-| ブランチを作る | `git switch -c <名前>` | `Switched to a new branch` |
-| 変更を選ぶ | `git add <ファイル>` | `Changes to be committed`に移る |
-| 変更を記録する | `git commit -m "説明"` | コミットIDが表示される |
-| GitHubへ送る | `git push -u origin <ブランチ>` | GitHubにブランチが表示される |
-| 最新版を取り込む | `git pull origin main` | 更新内容または`Already up to date`が出る |
-
-> [!TIP]
-> 迷ったら、次の操作を推測せずに`git status`を実行します。
-
-## `origin`とは
-
-`origin`は、通常、clone元のリモートリポジトリに付く短い名前です。
+## まず全体を見る
 
 ```text
-git pull origin main
-         │      └─ 対象ブランチ
-         └──────── リモートの名前
+編集中のファイル
+Worktree
+   │ git add
+   v
+次のcommitに入れる変更
+Staging area / Index
+   │ git commit
+   v
+ローカルの履歴
+Commit
+   │ git push
+   v
+GitHub上の履歴
+origin/<branch>
 ```
 
-## `.gitignore`で共有しないものを決める
+## Stagingは何のため？
 
-| 共有しないもの | 例 | 理由 |
-|---|---|---|
-| 機密情報 | `.env` | 漏洩を防ぐ |
-| 復元できる依存物 | `node_modules/` | 容量を増やさない |
-| ビルド成果物 | `dist/` | 自動生成できる |
-| OSの一時ファイル | `.DS_Store` | 不要な差分を防ぐ |
+Stagingは、**次の1回のcommitへ入れる変更範囲を選ぶ場所**です。
 
-```gitignore
-node_modules/
-.env
-*.local
-.DS_Store
-Thumbs.db
-dist/
-build/
+例えば同じ作業中にREADMEと設定ファイルを触っていても、READMEだけを先にcommitできます。
+
+```bash
+git status
+git diff
+git add README.md
+git diff --staged
+git commit -m "docs: READMEを更新"
 ```
 
-> [!WARNING]
-> `.gitignore`は、すでにコミットしたファイルを履歴から消しません。機密情報をpushした場合は[第5章](05_troubleshooting_and_recovery.md)を確認してください。
+- `git diff` → まだstagingしていない変更
+- `git diff --staged` → 次のcommitに入る変更
+
+## Commitは「その時点の記録」
+
+```text
+A ← B ← C
+```
+
+各commitは、それまでの履歴につながっています。
+
+```bash
+git log --oneline --graph --decorate --all --max-count=20
+```
+
+実際の履歴を図として確認してください。
+
+## Branchは「別フォルダ」ではない
+
+初心者向けには「作業を分ける場所」と考えて構いませんが、Git内部ではbranchは**あるcommitを指す名前**です。
+
+```text
+A ← B ← C
+        ↑   ↑
+      main  feature/login
+```
+
+作業ブランチでcommitすると、そのbranchが新しいcommitを指すようになります。
+
+## HEADは「今いる場所」
+
+通常、`HEAD`は現在checkout / switchしているbranchを指します。
+
+```text
+A ← B ← C
+        ↑   ↑
+      main  feature/login
+             ↑
+            HEAD
+```
+
+確認：
+
+```bash
+git status
+git branch --show-current
+```
+
+`HEAD~1` は「現在のcommitの1つ前」を表します。第6章の復旧で出てくるため、ここで意味だけ覚えてください。
+
+## `origin/main`は何？
+
+cloneすると通常、clone元のリモートに `origin` という名前が付きます。
+
+```text
+main          → 自分のPC上のmain
+origin/main   → 最後に取得したGitHub側mainの位置
+```
+
+GitHubの最新状態をPCへ取得する操作が `git fetch` です。
+
+```bash
+git fetch origin
+```
+
+これだけでは、自分の `main` や作業ファイルは勝手に書き換わりません。
+
+## 状態を見る3コマンド
+
+```bash
+git status
+git diff
+git log --oneline --graph --decorate --all --max-count=20
+```
+
+迷ったら変更系コマンドより先に、この3つで状況を見ます。
 
 ## 完了チェック
 
-- [ ] 変更が4つの場所をどう移動するか説明できる
-- [ ] `git status`で現在の状態を確認できる
-- [ ] `git add`と`git commit`の違いが分かる
+- [ ] Worktree / Staging / Commitの順を説明できる
+- [ ] `git add`が「GitHubへ送る操作」ではないと説明できる
+- [ ] branchとHEADの関係を説明できる
+- [ ] `main`と`origin/main`の違いを説明できる
+- [ ] `git diff`と`git diff --staged`を使い分けられる
 
 ---
 
-* [前へ：第1章](01_why_git_and_github.md)
-* [総合目次](git_team_development_guide.md)
-* [次へ：第3章](03_branch_naming_rules.md)
+前: [第1章](01_why_git_and_github.md)  
+次: [第3章 IssueとBranch](03_issue_and_branch.md)

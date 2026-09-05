@@ -1,115 +1,147 @@
-# 第4章：チーム開発のワークフロー
+# 第4章：普段のチーム開発フロー
 
 ## この章のゴール
 
-**Issueを受け取り、PRをマージしてIssueを完了できる。**
+**Issue → Branch → Commit → Push → PR → Review → Merge を安全に一周できる。**
 
-## まず見る：1つのIssueが完了するまで
+## 全体像
 
-```mermaid
-flowchart LR
-    A["1. Issue<br>目的を決める"] --> B["2. Branch<br>作業を分ける"]
-    B --> C["3. Commit<br>変更を記録"]
-    C --> D["4. Push / PR<br>確認を依頼"]
-    D --> E["5. Review<br>修正・承認"]
-    E --> F["6. Merge<br>統合・完了"]
+```text
+Issue
+ ↓
+最新mainからbranch作成
+ ↓
+編集
+ ↓
+status / diff
+ ↓
+add / diff --staged
+ ↓
+commit
+ ↓
+push
+ ↓
+Pull Request
+ ↓
+Review / 修正
+ ↓
+Create a merge commit
+ ↓
+main更新 / branch削除
 ```
 
-## 手順早見表
-
-| 段階 | やること | 完了の目印 |
-|---|---|---|
-| Issue | 目的・作業・完了条件を書く | 担当者が決まっている |
-| Branch | 最新の`main`から作る | 作業ブランチへ移動済み |
-| Commit | 関係する変更だけ記録する | `git status`が意図どおり |
-| PR | `Closes #番号`を付ける | レビュアーが判断できる |
-| Review | 指摘を同じブランチで直す | 承認・テスト完了 |
-| Merge | PRを統合する | Issueが閉じる |
-
-## 1. Issue：作業の入口を作る
-
-Issueには次の3点を書きます。
-
-```markdown
-## 目的
-チームメンバーがお互いの役割を確認できるようにする。
-
-## やること
-- profile_template.mdを複製する
-- profiles/<名前>.mdを作成する
-
-## 完了条件
-- [ ] 必須項目が記入されている
-- [ ] profiles/に保存されている
-```
-
-## 2. Branch：最新の`main`から分ける
+## 1：最新mainから作業を始める
 
 ```bash
 git switch main
-git pull origin main
+git status
+git fetch origin
+git merge --ff-only origin/main
 git switch -c feature/issue-12-add-profile
 ```
 
-## 3. Commit：変更を確認して記録する
+## 2：編集したら差分を見る
 
 ```bash
 git status
+git diff
+```
+
+「何を変えたか」を確認せずに全部addしないことを基本にします。
+
+## 3：次のcommitに入れる変更を選ぶ
+
+```bash
 git add profiles/taro.md
+git diff --staged
+```
+
+意図した変更だけならcommitします。
+
+```bash
 git commit -m "feat: taroのプロフィールを追加"
 ```
 
-> [!TIP]
-> `feat:`は機能、`fix:`は不具合、`docs:`は文書の変更を表します。チームの規則があればそちらを使います。
+## 4：GitHubへpushする
 
-## 4. Push / PR：レビューを依頼する
+初回：
 
 ```bash
 git push -u origin feature/issue-12-add-profile
 ```
 
-PR本文には、最低限次を含めます。
-
-- 何を変更したか
-- どう確認したか
-- `Closes #12`（マージ時にIssueを閉じる）
-
-## 5. Review：同じPRへ修正を追加する
-
-```text
-レビュー指摘 → ファイル修正 → add → commit → push
-                                      ↓
-                              開いているPRへ自動反映
-```
+2回目以降：
 
 ```bash
+git push
+```
+
+## 5：PRを作る
+
+PRには最低限、次を書きます。
+
+```markdown
+## 変更内容
+- taroのプロフィールを追加
+
+## 確認内容
+- [x] テンプレートの必須項目を記入した
+- [x] 意図しないファイルを含んでいない
+
+Closes #12
+```
+
+GitHub上で次も確認します。
+
+- base: `main`
+- compare: 自分の作業branch
+- Files changedに余計なファイルがない
+
+## 6：レビュー指摘は同じbranchで直す
+
+```bash
+git status
+# ファイルを修正
 git add profiles/taro.md
+git diff --staged
 git commit -m "fix: プロフィールの記載漏れを修正"
 git push
 ```
 
-> [!IMPORTANT]
-> 指摘を受けても、PRやブランチを作り直しません。同じブランチへpushします。
+開いているPRへ自動的に反映されます。指摘のたびに新しいPRを作る必要はありません。
 
-## 6. Merge：統合して片付ける
+## 7：基本編はCreate a merge commitで統合する
 
-GitHubで承認とテスト結果を確認し、チームの規則に合う方法でマージします。その後、ローカルを更新します。
+この教材の基本編では、GitHubのPR画面で **Create a merge commit** を選びます。
+
+理由：
+
+- branchの履歴がmainへそのまま統合されたことを追いやすい
+- `git branch -d`の意味が分かりやすい
+- squash / rebaseの履歴変換を初級編へ混ぜない
+
+Squash merge / Rebase mergeは第9章で扱います。
+
+## 8：マージ後に片付ける
 
 ```bash
 git switch main
-git pull origin main
+git fetch origin
+git merge --ff-only origin/main
 git branch -d feature/issue-12-add-profile
 ```
 
+GitHub側の作業branchも不要なら削除します。
+
 ## 完了チェック
 
-- [ ] Issueの完了条件をすべて満たした
-- [ ] PRに変更内容と確認方法を書いた
-- [ ] レビュー指摘を同じPRへ反映した
-- [ ] マージ後にIssueが閉じた
+- [ ] commit前に差分を確認した
+- [ ] PRのbase / compareを確認した
+- [ ] レビュー修正を同じPRへ追加した
+- [ ] Create a merge commitで統合した
+- [ ] mainを更新して作業branchを削除した
 
 ---
 
-* [前へ：第3章](03_branch_naming_rules.md)
-* [総合目次](git_team_development_guide.md)
-* [次へ：第5章](05_troubleshooting_and_recovery.md)
+前: [第3章](03_issue_and_branch.md)  
+次: [第5章 fetch・merge・conflict](05_sync_and_conflict.md)

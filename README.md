@@ -1,70 +1,89 @@
-# 🎓 Git/GitHubチーム作業の基本
+# Zero to One: Git / GitHub チーム開発
 
-GitHubを使ったチーム作業へ入る前に、メンバー全員で共有しておきたい**基本的な前提知識**をまとめた日本語ガイドです。
+Gitを初めて使う人が、**「コマンドを暗記する」のではなく、今どこにいて何を動かしているかを理解しながら**、Issue → Branch → Commit → Pull Request → Review → Merge を一周するための日本語教材です。
 
-Gitの基本概念、Issue、ブランチ、コミット、PR、レビュー、マージ、トラブル対応を、「何のために行う操作か」から図・表・チェックリストで学びます。最後に一連の流れをハンズオンで確認できます。
-
-## まず見る全体像
+## この教材で一番大事な地図
 
 ```text
-Issueを選ぶ → ブランチを作る → 編集・コミット → push → PR → レビュー → マージ
+Issue（何をするか）
+  ↓
+Branch（作業を分ける）
+  ↓
+Worktree（編集する）
+  ↓ git add
+Staging（次のcommitに入れる変更を選ぶ）
+  ↓ git commit
+Local repository（履歴として記録する）
+  ↓ git push
+GitHub / Pull Request（共有・レビュー）
+  ↓ Merge
+main（確認済みの変更を統合）
 ```
 
-## こんな人におすすめ
+## 対象
 
 - Gitを初めて使う人
-- 個人開発からチーム開発へ進みたい人
-- GitHubを使うプロジェクトへ参加する前の人
-- チーム内でGit/GitHubの認識を揃えたい人
-- Issue・ブランチ・PRのつながりを練習したい人
+- 個人開発からチーム開発へ進む人
+- GitHubを使う授業・卒業制作・開発チームへ参加する人
+- AIにGit操作を任せる場合でも、状態と差分を自分で確認できるようになりたい人
 
-| 項目 | 目安 |
-|---|---|
-| 前提知識 | ファイル作成とターミナルの基本操作 |
-| 必要なもの | Git、GitHubアカウント、テキストエディタ |
-| 所要時間 | 読解30〜45分＋ハンズオン30〜60分 |
+前提は、ファイル操作とターミナルの基本だけです。
 
-## 最短ルート
+## 学習順序
 
-| 目的 | 開くページ |
-|---|---|
-| まず全体を知る | [総合ガイド](md/git_team_development_guide.md) |
-| すぐ手を動かす | [第6章：ハンズオン](md/06_hands_on_practice.md) |
-| エラーから戻したい | [第5章：トラブル対応](md/05_troubleshooting_and_recovery.md) |
-
-## 学習コンテンツ
-
-| 章 | テーマ | 読了後にできること |
+| 章 | テーマ | ゴール |
 |---|---|---|
-| [1](md/01_why_git_and_github.md) | Git/GitHubを使う理由 | ブランチやPRの目的を説明できる |
-| [2](md/02_git_basic_concepts.md) | 基本概念とコマンド | 変更をコミットして共有できる |
-| [3](md/03_branch_naming_rules.md) | ブランチ名 | Issueに対応した名前を付けられる |
-| [4](md/04_team_development_flow.md) | チーム開発フロー | Issueからマージまで進められる |
-| [5](md/05_troubleshooting_and_recovery.md) | 復旧方法 | 状況に合う安全な戻し方を選べる |
-| [6](md/06_hands_on_practice.md) | 実践 | 自己紹介をPRで追加できる |
+| [0](md/00_setup_and_auth.md) | 環境準備・GitHub認証 | commit / pushできる環境を作る |
+| [1](md/01_why_git_and_github.md) | なぜGit/GitHubを使うか | Issue・Branch・PRの目的を説明できる |
+| [2](md/02_git_basic_concepts.md) | Gitの地図 | Worktree / Staging / Commit / Branch / HEADを説明できる |
+| [3](md/03_issue_and_branch.md) | IssueとBranch | 1つの目的に1つの作業ブランチを作れる |
+| [4](md/04_team_development_flow.md) | 普段の開発フロー | IssueからMergeまで進められる |
+| [5](md/05_sync_and_conflict.md) | fetch・merge・conflict | リモートとの差と競合を安全に扱える |
+| [6](md/06_troubleshooting_and_recovery.md) | 復旧 | 状況に応じてrestore / reset / revertを選べる |
+| [7](md/07_hands_on_practice.md) | PRハンズオン | プロフィール追加をPRで完了できる |
+| [8](md/08_conflict_and_revert_practice.md) | conflict / revert演習 | 意図的な失敗から自力で戻せる |
+| [9](md/09_fork_squash_rebase.md) | 発展 | Fork / upstream / squash / rebaseを区別できる |
 
-## ハンズオンの成果物
+迷ったら [クイックガイド](md/git_team_development_guide.md) を開いてください。
 
-- Issue：作業の目的と完了条件
-- ブランチ：`feature/issue-<番号>-add-profile`
-- プロフィール：`profiles/<名前>.md`
-- PR：説明文に `Closes #<Issue番号>` を記載
+## ハンズオンの始め方
 
-## 始め方
+基本編は、**自分専用の練習リポジトリ**で行う前提です。教材管理者がこのリポジトリをTemplate Repositoryとして設定している場合は、GitHubの **Use this template** から自分のリポジトリを作成してください。
 
-1. このリポジトリをForkする
-2. Forkしたリポジトリをcloneする
-3. [第6章：ハンズオン](md/06_hands_on_practice.md)を開く
-4. プロフィール追加用Issueを作成して進める
+Templateが使えない環境では、授業担当者が用意した練習リポジトリを使用してください。Forkは基本編では使わず、第9章で扱います。
 
-```bash
-git clone https://github.com/<GitHubユーザー名>/zero-to-one-git.git
-cd zero-to-one-git
-```
+> [!IMPORTANT]
+> 公開リポジトリのプロフィール演習では、本名である必要はありません。学籍番号、個人メールアドレス、電話番号、住所などの個人情報は書かないでください。
 
-> [!TIP]
-> GitHubを使えない場合は、第6章の「ローカル練習版」だけでもGitの基本操作を試せます。
+## 基本編のルール
 
-## ライセンス
+- 作業前と迷ったときは `git status`
+- `main`へ直接作業しない
+- 1つのIssueに対して1つの作業ブランチ
+- commit前に `git diff --staged`
+- 基本編のPRは **Create a merge commit** で統合する
+- 共有済みのcommitを取り消すときは、原則 `git revert`
+- `reset --hard` と force push は、意味が分からない状態では実行しない
+
+## 公式資料
+
+- GitHub: Gitのセットアップと認証  
+  https://docs.github.com/en/get-started/git-basics/set-up-git
+- GitHub: GitHub CLI / Git Credential Manager  
+  https://docs.github.com/en/get-started/git-basics/caching-your-github-credentials-in-git
+- GitHub: Template Repository  
+  https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-template-repository
+- Git: `git pull`  
+  https://git-scm.com/docs/git-pull
+- Git: `git revert`  
+  https://git-scm.com/docs/git-revert
+- Git: `git reset`  
+  https://git-scm.com/docs/git-reset
+
+## リポジトリ管理者向け
+
+教材リポジトリ自身の推奨設定は [REPOSITORY_SETTINGS.md](REPOSITORY_SETTINGS.md) にまとめています。
+
+## License
 
 [MIT License](LICENSE)
