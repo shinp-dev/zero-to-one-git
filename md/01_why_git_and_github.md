@@ -2,16 +2,59 @@
 
 ## この章のゴール
 
-**Issue・Branch・Commit・PRが、それぞれ何の問題を解決するのか説明できる。**
+**Git / GitHub / `gh` の役割と、Issue・Branch・Commit・PRが解決する問題を説明できる。**
 
-## GitとGitHubは別のもの
+## Git / GitHub / `gh` は別のもの
 
 | 名前 | 主な役割 | ひとことで |
 |---|---|---|
-| Git | PC内でファイルの変更履歴を管理する | 履歴を作る仕組み |
+| Git | PC内で変更履歴、branch、commit、remote同期を扱う | 履歴を作る仕組み |
 | GitHub | Gitの履歴を共有し、IssueやPRで協働する | チームの作業場所 |
+| `gh` | GitHubをターミナルから操作する公式CLI | GitHub Web UIのCLI版 |
 
-GitはGitHubがなくても使えます。GitHubはGitを使った共同作業をしやすくするサービスです。
+GitはGitHubがなくても使えます。GitHubはGitを使った共同作業をしやすくするサービスです。`gh`は、そのGitHubサービスをブラウザを開かずに操作するための道具です。
+
+```text
+ローカルPC
+├─ git status / add / commit / branch / merge
+│        ↓ push / fetch
+└──────── Git remote
+
+GitHub
+├─ Repository
+├─ Issue
+├─ Pull Request
+├─ Review
+└─ Actions
+   ↑            ↑
+ Web UI       gh CLI
+```
+
+## どこが重なって、どこが重ならない？
+
+同じGitHub操作へ複数の入口がある場合があります。
+
+```text
+GitHubのIssue画面  ←→ gh issue
+GitHubのPR画面     ←→ gh pr
+GitHubのrepo画面   ←→ gh repo
+```
+
+一方、次はGit本体の仕事です。
+
+```text
+git diff
+git add
+git commit
+git branch
+git fetch
+git merge
+```
+
+`gh`を覚えても、Gitの状態管理を理解しなくてよいわけではありません。
+
+> [!NOTE]
+> `gh repo clone`のようにGitの操作を便利に呼び出す機能もあります。まず「何をしているか」をGit側で理解し、その後に`gh`のショートカットを使う方針にします。
 
 ## チーム開発で困ること
 
@@ -67,6 +110,8 @@ Gitを使う目的は履歴を綺麗に見せることではありません。**
 ## 完了チェック
 
 - [ ] GitとGitHubの違いを説明できる
+- [ ] `gh`が何を操作する道具か説明できる
+- [ ] `git add` / `git commit`を`gh`が置き換えるわけではないと説明できる
 - [ ] Issue / Branch / Commit / PR / Mergeの目的を1文ずつ説明できる
 - [ ] mainへ直接作業しない理由を説明できる
 
