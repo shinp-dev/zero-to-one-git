@@ -65,6 +65,27 @@ Templateが使えない環境では、授業担当者が用意した練習リポ
 - 共有済みのcommitを取り消すときは、原則 `git revert`
 - `reset --hard` と force push は、意味が分からない状態では実行しない
 
+## AIを使う場合
+
+AIにGit操作やコード修正を依頼しても構いません。ただし、実行前後に人間が最低限次を確認します。
+
+```bash
+git status
+git branch --show-current
+git diff
+git diff --staged
+```
+
+特にAIから `reset --hard`、force push、大量ファイル削除、別branchへの切り替えを提案された場合は、**何が失われるか説明できるまで実行しない**ことを基本にします。
+
+AIが操作した場合でも、最終的に次を説明できる状態が目標です。
+
+- 今どのbranchにいるか
+- どのファイルが変更されたか
+- 次のcommitに何が入るか
+- GitHubへ何をpushするか
+- PRがどのIssueを解決するか
+
 ## 公式資料
 
 - GitHub: Gitのセットアップと認証  
