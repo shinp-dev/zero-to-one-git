@@ -1,51 +1,102 @@
-# Git/GitHubチーム開発ガイド
+# Git/GitHub チーム開発クイックガイド
 
-## 7秒で分かる全体像
-
-```text
-Issue → Branch → Commit → Push → Pull Request → Review → Merge
- 何を     分離       記録      共有       確認依頼        合意      統合
-```
-
-## 目的別ナビゲーション
-
-| 今したいこと | 読む場所 |
-|---|---|
-| なぜ必要か知りたい | [第1章](01_why_git_and_github.md) |
-| 基本コマンドを確認したい | [第2章](02_git_basic_concepts.md) |
-| ブランチ名を決めたい | [第3章](03_branch_naming_rules.md) |
-| 通常の開発手順を確認したい | [第4章](04_team_development_flow.md) |
-| 失敗から戻したい | [第5章](05_troubleshooting_and_recovery.md) |
-| 一連の流れを練習したい | [第6章](06_hands_on_practice.md) |
-
-## 作業中のクイックガイド
-
-| やること | コマンド／操作 |
-|---|---|
-| `main`を最新にする | `git switch main` → `git pull origin main` |
-| ブランチを作る | `git switch -c feature/issue-12-add-profile` |
-| 状態を確認する | `git status` |
-| 変更を記録する | `git add <ファイル>` → `git commit -m "説明"` |
-| GitHubへ送る | `git push -u origin <ブランチ>` |
-| PRとIssueを結ぶ | PR本文に`Closes #12` |
-| マージ後に片付ける | `git switch main` → `git pull` → `git branch -d <ブランチ>` |
-
-## 困ったとき
+## 10秒で見る全体像
 
 ```text
-止まる → git status → メッセージを読む → 第5章の逆引き表 → 必要なら相談
+Issue → Branch → Edit → add → Commit → Push → PR → Review → Merge
 ```
+
+## 今どこにいるか分からない
+
+まずこれです。
+
+```bash
+git status
+git branch --show-current
+git log --oneline --graph --decorate --all --max-count=20
+```
+
+## 普段の開始
+
+```bash
+git switch main
+git status
+git fetch origin
+git merge --ff-only origin/main
+git switch -c feature/issue-12-short-name
+```
+
+## commitまで
+
+```bash
+git status
+git diff
+git add <file>
+git diff --staged
+git commit -m "説明"
+```
+
+## GitHubへ送る
+
+```bash
+git push -u origin <branch>
+```
+
+2回目以降：
+
+```bash
+git push
+```
+
+## mainの変更を作業branchへ取り込む
+
+```bash
+git fetch origin
+git merge origin/main
+```
+
+conflict時：
+
+```bash
+git status
+```
+
+やめるなら：
+
+```bash
+git merge --abort
+```
+
+## 戻したい
+
+| 状況 | 操作 |
+|---|---|
+| 未commit編集を捨てる | `git restore <file>` |
+| addを取り消す | `git restore --staged <file>` |
+| 未pushの直前commitを戻す | `git reset HEAD~1` |
+| 共有済みcommitを打ち消す | `git revert <commit>` |
 
 > [!WARNING]
-> `reset --hard`やforce pushは、変更や共有履歴を失う可能性があります。対象と影響が分からない状態では実行しません。
+> `reset --hard` / force pushは、意味と影響範囲が分からない状態では使いません。
 
-## 学習の進め方
+## PRマージ後
 
-- 初めての人：第1章から順番に進む
-- 操作しながら覚える人：第6章を開き、必要な章を参照する
-- 作業中の人：上のクイックガイドと第5章を使う
+基本編はCreate a merge commitです。
 
----
+```bash
+git switch main
+git fetch origin
+git merge --ff-only origin/main
+git branch -d <branch>
+```
 
-* [リポジトリのREADME](../README.md)
-* [ハンズオンを始める](06_hands_on_practice.md)
+## 目的別
+
+- [環境・認証](00_setup_and_auth.md)
+- [Gitの地図](02_git_basic_concepts.md)
+- [普段の開発フロー](04_team_development_flow.md)
+- [fetch / conflict](05_sync_and_conflict.md)
+- [復旧](06_troubleshooting_and_recovery.md)
+- [PRハンズオン](07_hands_on_practice.md)
+- [conflict / revert演習](08_conflict_and_revert_practice.md)
+- [Fork / squash / rebase](09_fork_squash_rebase.md)
