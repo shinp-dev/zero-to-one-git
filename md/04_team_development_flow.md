@@ -2,7 +2,7 @@
 
 ## この章のゴール
 
-**Issue → Branch → Commit → Push → PR → Review → Merge を安全に一周できる。**
+**Issue → Branch → Commit → Push → PR → Review → Merge を安全に一周し、GitHub上の操作をWeb UIと`gh`の両方から確認できる。**
 
 ## 全体像
 
@@ -29,6 +29,21 @@ Create a merge commit
  ↓
 main更新 / branch削除
 ```
+
+## Gitと`gh`の境界
+
+この章では、まず次のように分けます。
+
+| 操作 | 主に使うもの |
+|---|---|
+| 現在branch・差分・stagingを見る | Git |
+| commitする | Git |
+| remoteへpush / fetchする | Git |
+| Issue / PRを作る・見る | GitHub Web UI または `gh` |
+| PRのCI状態を見る | GitHub Web UI または `gh pr checks` |
+| PRをGitHub上でmergeする | GitHub Web UI または `gh pr merge` |
+
+`gh`はGitHub側の操作をCLIに持ってくる道具で、`git add`や`git commit`の代わりではありません。
 
 ## 1：最新mainから作業を始める
 
@@ -76,6 +91,8 @@ git push -u origin feature/issue-12-add-profile
 git push
 ```
 
+ここまではGitの仕事です。
+
 ## 5：PRを作る
 
 PRには最低限、次を書きます。
@@ -91,11 +108,32 @@ PRには最低限、次を書きます。
 Closes #12
 ```
 
-GitHub上で次も確認します。
+### Web UIから作る
+
+GitHubのPull requests画面から作り、次を確認します。
 
 - base: `main`
 - compare: 自分の作業branch
 - Files changedに余計なファイルがない
+
+### `gh`から作る
+
+現在のbranchをpush済みなら、次でも作れます。
+
+```bash
+gh pr create --base main
+```
+
+タイトルと本文を対話形式で入力します。
+
+作成後はCLIからも確認できます。
+
+```bash
+gh pr status
+gh pr view
+```
+
+Web UIで作ったPRも`gh pr view`で見え、`gh pr create`で作ったPRもWeb UIに表示されます。
 
 ## 6：レビュー指摘は同じbranchで直す
 
@@ -110,9 +148,32 @@ git push
 
 開いているPRへ自動的に反映されます。指摘のたびに新しいPRを作る必要はありません。
 
+GitHub CLIからPRの状態を確認するなら：
+
+```bash
+gh pr status
+gh pr checks
+```
+
+`gh pr checks`はPRに紐づくCIの状態を確認します。Actionsが無い教材repoでは何も表示されない場合があります。
+
 ## 7：基本編はCreate a merge commitで統合する
 
-この教材の基本編では、GitHubのPR画面で **Create a merge commit** を選びます。
+この教材の基本編では、merge方式を **merge commit** に固定します。
+
+### Web UI
+
+PR画面で **Create a merge commit** を選びます。
+
+### `gh`
+
+現在branchのPRをmergeする場合：
+
+```bash
+gh pr merge --merge
+```
+
+どちらもGitHub上の同じPRをmergeしています。
 
 理由：
 
@@ -124,6 +185,8 @@ Squash merge / Rebase mergeは第9章で扱います。
 
 ## 8：マージ後に片付ける
 
+GitHub上でmergeした後、ローカルGitを更新します。
+
 ```bash
 git switch main
 git fetch origin
@@ -133,15 +196,39 @@ git branch -d feature/issue-12-add-profile
 
 GitHub側の作業branchも不要なら削除します。
 
+ここも「GitHub上のmerge」と「ローカルGitの更新」は別操作だと意識してください。
+
+## Web UIと`gh`はどちらを使う？
+
+```text
+初めて操作する
+→ Web UIで画面上の対象を確認しやすい
+
+同じ操作を繰り返す / ターミナル中心で作業する
+→ ghが速い
+```
+
+どちらか一方だけが正解ではありません。**同じGitHub上のIssue / PRを別の入口から操作できる**と理解できればOKです。
+
 ## 完了チェック
 
 - [ ] commit前に差分を確認した
 - [ ] PRのbase / compareを確認した
+- [ ] `gh pr status`または`gh pr view`で同じPRを確認した
 - [ ] レビュー修正を同じPRへ追加した
-- [ ] Create a merge commitで統合した
+- [ ] `gh pr checks`が何を見るコマンドか説明できる
+- [ ] merge commitで統合した
+- [ ] Web UIのMergeボタンと`gh pr merge --merge`が同じGitHub上のPRを操作すると説明できる
 - [ ] mainを更新して作業branchを削除した
 
 ---
 
 前: [第3章](03_issue_and_branch.md)  
 次: [第5章 fetch・merge・conflict](05_sync_and_conflict.md)
+
+公式資料:
+- https://cli.github.com/manual/gh_pr
+- https://cli.github.com/manual/gh_pr_create
+- https://cli.github.com/manual/gh_pr_status
+- https://cli.github.com/manual/gh_pr_checks
+- https://cli.github.com/manual/gh_pr_merge
