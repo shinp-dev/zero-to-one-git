@@ -68,9 +68,11 @@ gh issue view <番号>
 
 ## 普段の開始
 
+最初の`git status`で未commit変更がある場合は、現在の作業をcommitするか退避方針を決めてから、branchを切り替えます。
+
 ```bash
-git switch main
 git status
+git switch main
 git fetch origin
 git merge --ff-only origin/main
 git switch -c feature/issue-12-short-name
@@ -129,6 +131,23 @@ gh pr merge --merge
 ```
 
 すべてGitHub Web UIからも同じ操作ができます。
+
+## AIが作業を終えたら
+
+作業branchで確認します。
+
+```bash
+git status
+git diff
+git diff --staged
+git fetch origin
+git diff --stat origin/main...HEAD
+git diff origin/main...HEAD
+```
+
+`status`がcleanでもcommit済みの変更は残っています。未追跡ファイルは開いて確認します。PR作成後はFiles changedまたは`gh pr diff`で提出差分を確認し、完了条件と検証結果を照合します。
+
+依頼例と並行作業の注意は [第10章](10_ai_assisted_development.md) へ。
 
 ## mainの変更を作業branchへ取り込む
 
@@ -197,5 +216,6 @@ git remote -v
 - [PRハンズオン](07_hands_on_practice.md)
 - [conflict / revert演習](08_conflict_and_revert_practice.md)
 - [Fork / squash / rebase](09_fork_squash_rebase.md)
+- [AIと進める開発](10_ai_assisted_development.md)
 
 GitHub CLI公式: https://cli.github.com/manual/

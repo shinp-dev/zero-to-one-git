@@ -164,7 +164,8 @@ mainの履歴をPR単位で1commitにしたい
 
 ---
 
-前: [第8章](08_conflict_and_revert_practice.md)  
+前: [第8章](08_conflict_and_revert_practice.md)
+次: [第10章 AIと進める開発](10_ai_assisted_development.md)
 [クイックガイド](git_team_development_guide.md)
 
 公式資料:

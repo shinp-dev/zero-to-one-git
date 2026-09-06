@@ -41,7 +41,7 @@ main（確認済みの変更を統合）
 | PRの状態を見る | GitHubのPR画面 | `gh pr status`, `gh pr checks` |
 | PRをmerge | GitHubのMergeボタン | `gh pr merge --merge` |
 
-この教材では、**まずGitとWeb UIで仕組みを理解し、その直後に同じGitHub操作を`gh`でも確認する**進め方にします。
+この教材ではGit・Web UI・`gh`の対応を示します。最初は使いやすい入口で一周し、別の入口でも同じ対象を扱えることを確認してください。両方でIssueやPRを重複作成する必要はありません。AIに操作を任せて進めても構いません。
 
 ## 対象
 
@@ -66,6 +66,14 @@ main（確認済みの変更を統合）
 | [7](md/07_hands_on_practice.md) | PRハンズオン | Web UIと`gh`の両方でGitHub上の状態を確認できる |
 | [8](md/08_conflict_and_revert_practice.md) | conflict / revert演習 | 意図的な失敗から自力で戻せる |
 | [9](md/09_fork_squash_rebase.md) | 発展 | Fork / upstream / squash / rebaseを区別できる |
+| [10](md/10_ai_assisted_development.md) | AIと進める開発 | 依頼の範囲を決め、差分・検証結果から採否を判断できる |
+
+### 自分に合う進め方
+
+- **操作を体験して学ぶ**：第0〜8章を順に進め、第9・10章で応用する。
+- **AIと一緒に学ぶ**：第0〜2章で準備と状態の意味を押さえ、第10章の依頼例で第7章を進める。Issue・レビュー・復旧で迷ったら第3〜6章へ戻る。
+
+どちらも到達点は「目的・変更範囲・確認結果・戻し方を説明できること」です。コマンドの手入力回数は評価しません。
 
 迷ったら [クイックガイド](md/git_team_development_guide.md) を開いてください。
 
@@ -91,28 +99,21 @@ Templateが使えない環境では、授業担当者が用意した練習リポ
 
 ## AIを使う場合
 
-AIにGit操作やコード修正を依頼しても構いません。ただし、実行前後に人間が最低限次を確認します。
+AIには編集・Git操作・PR作成まで任せられます。人間は目的と完了条件を決め、実際の差分と検証結果を見て採用を判断します。細かい操作ごとの確認は、最初に合意した作業範囲に応じて省けます。
 
-```bash
-git status
-git branch --show-current
-git diff
-git diff --staged
-gh pr status
-```
+**`git status`がcleanでも、AIが作ったcommitが正しいとは限りません。** 未commitの編集と、commit済みの変更は確認方法が違います。
 
-`gh pr status`は、現在のbranchに関係するPRやレビュー状態を確認するのに使えます。
+| 確認したいもの | 確認方法 |
+|---|---|
+| 現在のbranch・未追跡ファイル | `git status` / `git branch --show-current` |
+| 未stagingの変更 / staging済みの変更 | `git diff` / `git diff --staged` |
+| mainとの分岐後のcommit済み変更 | `git fetch origin`の後、作業branchで`git diff origin/main...HEAD` |
+| GitHubへ提出した変更 | PRのFiles changed または `gh pr diff` |
+| 実行した検証と未確認事項 | PR本文の具体的な結果、CIログ、必要な動作確認 |
 
-特にAIから `reset --hard`、force push、大量ファイル削除、別branchへの切り替えを提案された場合は、**何が失われるか説明できるまで実行しない**ことを基本にします。
+新規ファイルの中身は、未追跡の間は通常の`git diff`に出ません。ファイルを開くか、対象を`git add`して`git diff --staged`で確認します。
 
-AIが操作した場合でも、最終的に次を説明できる状態が目標です。
-
-- 今どのbranchにいるか
-- どのファイルが変更されたか
-- 次のcommitに何が入るか
-- GitHubへ何をpushするか
-- PRがどのIssueを解決するか
-- Web UIと`gh`が同じIssue / PRを操作していること
+依頼例、確認手順、AIと人間が同時に作業する場合の注意は [第10章：AIと進める開発](md/10_ai_assisted_development.md) にまとめています。
 
 ## 公式資料
 

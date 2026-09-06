@@ -102,6 +102,8 @@ GitHub Settings UI ─┐
 - [ ] Git / GitHub / `gh`の役割が区別されている
 - [ ] Issue / PRにWeb UIと`gh`の両方の導線がある
 - [ ] 公開プロフィールの個人情報注意がある
+- [ ] AI利用の導線と、commit済み差分の確認方法がある
+- [ ] PRに実施した検証結果・未確認事項を残せる
 
 公式資料:
 - https://cli.github.com/manual/gh_repo_edit
