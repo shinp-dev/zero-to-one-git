@@ -40,6 +40,8 @@ git commit -m "docs: READMEを更新"
 - `git diff` → まだstagingしていない変更
 - `git diff --staged` → 次のcommitに入る変更
 
+未追跡の新規ファイルは`git status`で見つけ、ファイルを開くか、対象をaddした後の`git diff --staged`で中身を確認します。commit後はこの2つのdiffから変更が消えます。直前のcommitは`git show HEAD`、作業branch全体は`git fetch origin`後の`git diff origin/main...HEAD`で確認できます。
+
 ## Commitは「その時点の記録」
 
 ```text

@@ -54,9 +54,11 @@ gh issue view 12
 
 ## Step 2：最新mainからbranchを作る
 
+最初の`git status`で未commit変更がある場合は、現在の作業をcommitするか退避方針を決めてから、branchを切り替えます。
+
 ```bash
-git switch main
 git status
+git switch main
 git fetch origin
 git merge --ff-only origin/main
 git switch -c feature/issue-12-add-profile
@@ -89,6 +91,8 @@ git diff
 ```
 
 プロフィール以外の変更が入っていないことを確認します。
+
+新規ファイルは未追跡の間、通常の`git diff`には出ません。`git status`で対象を確認し、ファイルを開くか、次の手順でaddしてから中身を確認します。
 
 ## Step 5：stagingしてcommitする
 

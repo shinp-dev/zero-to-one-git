@@ -2,9 +2,9 @@
 
 第7章のハンズオンで作成したプロフィールを置くフォルダです。
 
-1. [`profile_template.md`](../profile_template.md)をコピーする
-2. `profiles/<ニックネーム>.md`として保存する
-3. Issueと作業branchを作る
+1. Issueと作業branchを作る
+2. [`profile_template.md`](../profile_template.md)をコピーする
+3. `profiles/<ニックネーム>.md`として保存する
 4. PRでレビューしてmainへmergeする
 
 > [!IMPORTANT]

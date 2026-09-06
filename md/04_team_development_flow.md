@@ -47,9 +47,11 @@ main更新 / branch削除
 
 ## 1：最新mainから作業を始める
 
+最初の`git status`で未commit変更がある場合は、現在の作業をcommitするか退避方針を決めてから、branchを切り替えます。
+
 ```bash
-git switch main
 git status
+git switch main
 git fetch origin
 git merge --ff-only origin/main
 git switch -c feature/issue-12-add-profile
@@ -63,6 +65,8 @@ git diff
 ```
 
 「何を変えたか」を確認せずに全部addしないことを基本にします。
+
+新規ファイルは未追跡の間、通常の`git diff`には出ません。`git status`で対象を確認し、ファイルを開くか、次の手順でaddしてから中身を確認します。
 
 ## 3：次のcommitに入れる変更を選ぶ
 
@@ -156,6 +160,16 @@ gh pr checks
 ```
 
 `gh pr checks`はPRに紐づくCIの状態を確認します。Actionsが無い教材repoでは何も表示されない場合があります。
+
+## merge前に確認すること
+
+AIがcommitまで済ませた場合は、PRのFiles changedまたは`gh pr diff`で提出する変更全体を確認します。AIの要約だけでは、変更漏れや不要な削除を見落とすことがあります。
+
+- Issueの完了条件と実際の変更が一致しているか
+- 変更に合った検証結果があり、未実施の確認と区別されているか
+- レビュー後に追加されたcommitも確認したか
+
+CIがないことはテスト成功を意味しません。この教材のプロフィール変更なら、内容・公開情報・Markdown表示を確認します。アプリの変更なら、該当機能の正常系や失敗時の動作も確認します。
 
 ## 7：基本編はCreate a merge commitで統合する
 
